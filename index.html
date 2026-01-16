@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+
+<meta name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+<title>LIVE SCOREBOARD</title>
+
+
+<style>
+
+.logo-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:28px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+
+.logo-row img{
+  height:48px;
+  max-width:120px;
+  object-fit:contain;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
+  opacity:0;
+  transform:scale(.9);
+  transition:opacity .3s ease, transform .3s ease;
+}
+
+
+
+
+.sidebar{
+  transition: transform .4s ease;
+}
+
+body.sidebar-hide .sidebar{
+  width:0;
+  padding:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+
+
+
+.float-btn{
+  position:sticky;
+  top:20px;
+  left:20px;
+  z-index:10000; 
+  padding:10px 16px;
+  border:none;
+  border-radius:12px;
+  background:#facc15;
+  color:#020617;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 15px rgba(0,0,0,.4);
+}
+
+
+
+#btnBack{
+  display:none;
+}
+
+html, body{
+  width:auto;
+  height:auto;
+  min-height:100%;
+  overflow:visible;      
+  touch-action:pan-x pan-y pinch-zoom;
+  -webkit-overflow-scrolling:touch;
+}
+
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:white;
+  overflow:auto;
+  transform-origin:0 0;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(300px, 1fr));
+  overflow:visible;
+  width:auto;
+  will-change: scroll-position;
+  transform:translateZ(0);
+  will-change:transform;
+}
+
+@media (pointer:coarse) {
+  img {
+    filter:none !important;
+  }
+}
+
+
+.layout{
+  display:flex;
+  will-change: scroll-position;
+  }
+
+
+.sidebar{
+  width:260px;
+  background:#020617;
+  padding:16px;
+  overflow:auto;
+  height:100%;
+  max-height:100vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch; 
+}
+.sidebar h3{font-size:14px;opacity:.8;margin-bottom:10px}
+.sidebar button{
+  width:100%;
+  background:#1e293b;
+  color:white;
+  border:none;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  text-align:left;
+}
+.sidebar button:hover{background:#334155}
+
+body.sidebar-hide main{
+  margin:0 auto;
+  max-width:1500px;
+}
+
+body.sidebar-hide .row{
+  justify-content:center;
+}
+
+
+
+.header{
+  text-align:center;
+  margin-bottom:30px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+
+.header img{
+  height:48px;           
+  width:auto;
+  object-fit:contain;
+  filter:none !important; 
+}
+
+.header span{
+  display:inline-flex;
+}
+
+
+
+.header h2{
+  margin:5px 0 0;
+  font-size:32px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.header .meta{
+  font-size:22px;
+  opacity:.85;
+  font-weight:700;
+}
+
+.logo-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+
+
+.materi{
+  background:#020617;
+  border-radius:12px;
+  padding:10px;
+  transform:translateZ(0);
+  will-change:transform;
+}
+
+
+.judul{
+  font-size:13px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.card{
+  background:#1e293b;
+  border-radius:6px;
+  padding:6px;
+  display:flex;
+  align-items:center;
+  gap:3px;
+  margin-bottom:6px;
+  transform:translateZ(0);
+  will-change:transform;
+}
+.rank{font-size:22px;width:40px;text-align:center}
+.nama{font-weight:bold;font-size:14px}
+.klub{font-size:12px;opacity:.8}
+.skor{margin-left:auto;font-weight:bold}
+
+
+#singleView{display:none}
+
+
+.fullscreen{
+  position:sticky;
+  inset:0;
+  background:radial-gradient(circle at top,#020617,#000814);
+  z-index:9999;
+  padding:20px;
+  overflow:auto;
+  touch-action:pan-y pan-x pinch-zoom;
+  -webkit-overflow-scrolling:touch;
+}
+
+.table-wrap{
+  max-height:80vh;
+  overflow:auto;
+  border-radius:14px;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
+}
+
+
+.std-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  background:#020617;
+}
+
+
+.std-table th{
+  position:sticky;
+  top:0;
+  background:linear-gradient(180deg,#020617,#1e293b);
+  color:#facc15;
+  z-index:10;
+  padding:10px;
+  border:1px solid #334155;
+  text-shadow:0 1px 2px #000;
+}
+
+body.mode-fullscreen #btnDashboard{
+  display:none;
+  transform:translateZ(0);
+  will-change:transform;
+}
+
+
+.ticker {
+  background:#081226;
+  padding:6px 0;
+  overflow-x:hidden;
+  overflow-y:visible;
+  touch-action:auto;
+}
+
+.ticker__track {
+  display:flex;
+  white-space:nowrap;
+  animation:scroll 25s linear infinite;
+}
+
+.ticker__content {
+  display:inline-flex;
+  align-items:center;
+  gap:18px;
+  padding-right:40px;
+}
+
+.ticker__content img {
+  height:32px;
+  object-fit:contain;
+}
+
+.ticker img {
+  height:32px !important;
+  width:auto;
+  display:inline-block;
+  object-fit:contain;
+}
+
+.ticker img,
+.ticker .logo {
+  height:32px;
+  width:auto;
+  min-height:32px;
+  object-fit:contain;
+  display:inline-block;
+}
+
+@keyframes scroll {
+  0%   { transform:translateX(100%); }
+  100% { transform:translateX(-100%); }
+}
+
+
+.datetime-box {
+  margin-top: 12px;
+  padding: 10px;
+  background:#ececec;
+  border-radius:6px;
+  text-align:center;
+  font-weight:bold;
+  position:sticky;
+  top:0;
+}
+
+.datetime-box .jam {
+ font-size: 20px;
+  margin-bottom:4px;
+  color:#facc15;
+}
+
+.datetime-box .tanggal {
+  font-size: 18px;
+  color:#facc15;
+}
+
+.sidebar .datetime-box{
+  margin-top:12px;
+  background:#1e293b;
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
+  font-weight:700;
+}
+
+
+.std-table td{
+  padding:5px;
+  border:1px solid #334155;
+  text-align:center;
+  color:#e5e7eb;
+}
+
+.std-table td.nama{
+  text-align:left;
+  font-weight:bold;
+  color:#f8fafc;
+}
+
+
+.group-total{
+  text-align:right;
+  font-weight:800;
+  font-size:20px;
+  margin-top:6px;
+  color:#facc15;
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+<button id="btnDashboard" class="float-btn">🏠 Dashboard</button>
+<button id="btnBack" class="float-btn">⬅ Kembali</button>
+
+
+<script>
+
+window.addEventListener('touchstart', () => {
+  document.querySelector('.ticker__track').style.animationPlayState = 'paused';
+});
+
+window.addEventListener('touchend', () => {
+  document.querySelector('.ticker__track').style.animationPlayState = 'running';
+});
+
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const btnDashboard = document.getElementById("btnDashboard");
+  const btnBack = document.getElementById("btnBack");
+
+  if(!btnDashboard || !btnBack){
+    console.error("Tombol tidak ditemukan");
+    return;
+  }
+
+  
+  btnBack.style.display = "none";
+
+btnDashboard.addEventListener("click", function(){
+  document.body.classList.add("sidebar-hide");
+  document.body.classList.remove("mode-fullscreen"); 
+  btnDashboard.style.display = "none";
+  btnBack.style.display = "block";
+});
+
+btnBack.addEventListener("click", function(){
+  document.body.classList.remove("sidebar-hide");
+  document.body.classList.remove("mode-fullscreen"); 
+  btnBack.style.display = "none";
+  btnDashboard.style.display = "block";
+});
+
+});
+
+
+</script>
+
+
+<div class="layout">
+
+<aside class="sidebar">
+<h3>MENU MATERI</h3>
+<button onclick="showAll()">🏠 Semua Materi</button>
+<button onclick="showOnly('cat1')">Executive Plus Perorangan</button>
+<button onclick="showOnly('cat2')">Executive Plus Beregu</button>
+<button onclick="showOnly('cat3')">Dueling Plate Putra</button>
+<button onclick="showOnly('cat4')">Dueling Plate Putri</button>
+<button onclick="showOnly('cat5')">Dueling Plate Beregu</button>
+<button onclick="showOnly('cat6')">Rotary Plate Target</button>
+<button onclick="showOnly('cat7')">Senapan 100m STD</button>
+<button onclick="showOnly('cat8')">Senapan 100m Open</button>
+<button onclick="showOnly('cat9')">Senapan 100m Beregu</button>
+<button onclick="showOnly('cat10')">Senapan 300m Tactical</button>
+<button onclick="showOnly('cat11')">F-Class 300m</button>
+<button onclick="showOnly('cat12')">900m Match Target</button>
+
+ <span></span>
+<div class="datetime-box">
+  <div id="jam" class="jam">00:00:00</div>
+  <div id="tanggal" class="tanggal">01/01/2026</div>
+</div>
+</aside>
+
+
+<main>
+
+<div class="header">
+  <h2>🏆 LIVE SCOREBOARD PANGKORMAR CUP 2026</h2>
+  
+</div>
+
+
+
+<div id="gridView">
+
+<div class="row">
+<div class="materi"><div class="judul">Executive Plus Perorangan</div><div id="cat1"></div></div>
+<div class="materi"><div class="judul">Rotary Plate Target</div><div id="cat6"></div></div>
+<div class="materi"><div class="judul">Dueling Plate Putra</div><div id="cat3"></div></div>
+<div class="materi"><div class="judul">Dueling Plate Putri</div><div id="cat4"></div></div>
+</div>
+
+
+<div class="row">
+<div class="materi"><div class="judul">Senapan 100m STD</div><div id="cat7"></div></div>
+<div class="materi"><div class="judul">Senapan 100m Open</div><div id="cat8"></div></div>
+<div class="materi"><div class="judul">Senapan 300m Tactical</div><div id="cat10"></div></div>
+<div class="materi"><div class="judul">F-Class 300m</div><div id="cat11"></div></div>
+</div>
+
+<div class="row">
+<div class="materi"><div class="judul">900m Match Target</div><div id="cat12"></div></div>
+<div class="materi"><div class="judul">Senapan 100m Beregu</div><div id="cat9"></div></div>
+<div class="materi"><div class="judul">Executive Plus Beregu</div><div id="cat2"></div></div>
+<div class="materi"><div class="judul">Dueling Plate Beregu</div><div id="cat5"></div></div>
+
+</div>
+
+</div>
+
+<div id="singleView">
+  <div id="singleContent"></div>
+</div>
+
+</main>
+</div>
+
+
+
+
+
+
+
+<script>
+const sheets={
+cat1:"EXEC_PERORANGAN",
+cat2:"EXEC_BEREGU",
+cat3:"DP_PUTRA",
+cat4:"DP_PUTRI",
+cat5:"DP_BEREGU",
+cat6:"ROTARY_PLATE",
+cat7:"STD_PERORANGAN",
+cat8:"OPEN_PERORANGAN",
+cat9:"BEREGU",
+cat10:"TACTICAL_300M",
+cat11:"FCLASS_300M",
+cat12:"MATCH_900M"
+};
+
+let dpBereguRendered = false;
+
+
+const materiConfig = {
+  cat1:{ title:"Executive Plus Perorangan", sheet:"EXEC_PERORANGAN", columns:36, tipe:"angka" }, 
+  cat2:{ title:"Executive Plus Beregu", sheet:"EXEC_BEREGU", columns:36, tipe:"angka" },
+  cat3:{ title:"Dueling Plate Putra", sheet:"DP_PUTRA", columns:6, tipe:"angka" }, 
+  cat4:{ title:"Dueling Plate Putri", sheet:"DP_PUTRI", columns:6, tipe:"angka" },
+  cat5:{ title:"Dueling Plate Beregu", sheet:"DP_BEREGU", columns:6, tipe:"angka" }, 
+  cat6:{ title:"Rotary Plate Target", sheet:"ROTARY_PLATE", columns:6, tipe:"angka" },
+  cat7:{ title:"Senapan 100M STD", sheet:"STD_PERORANGAN", columns:48, tipe:"angka" }, 
+  cat8:{ title:"Senapan 100M Open", sheet:"OPEN_PERORANGAN", columns:48, tipe:"angka" },
+  cat9:{ title:"Senapan 100M Beregu", sheet:"BEREGU", columns:48, tipe:"angka" },
+  cat10:{ title:"Senapan 300M Tactical", sheet:"TACTICAL_300M", columns:32, tipe:"angka" },
+  cat11:{ title:"F-Class 300M", sheet:"FCLASS_300M", columns:20, tipe:"angka" },
+  cat12:{ title:"900M Match Target", sheet:"MATCH_900M", columns:20, tipe:"angka" }
+};
+
+
+
+function renderTableDynamic(el, data, title){
+  let html = `
+  <div class="fullscreen">
+    <h2 style="text-align:center;margin-bottom:15px">${title}</h2>
+    <div class="table-wrap">
+      <table class="std-table">
+  `;
+
+ 
+  html += "<tr>";
+  data[0].forEach((_,i)=>{
+    html += `<th>Kol ${i+1}</th>`;
+  });
+  html += "</tr>";
+
+ 
+  data.forEach(r=>{
+    html += "<tr>";
+    r.forEach(c=>{
+      html += `<td>${c ?? ""}</td>`;
+    });
+    html += "</tr>";
+  });
+
+  html += `
+      </table>
+    </div>
+    <div style="text-align:center;margin-top:15px">
+      <button onclick="showAll()" style="padding:10px 20px;border-radius:10px;border:none;background:#1e293b;color:white">
+        ⬅ Kembali
+      </button>
+    </div>
+  </div>
+  `;
+
+  el.innerHTML = html;
+}
+
+
+function groupBeregu(d){
+  return {
+    1: d.slice(0,3),
+    2: d.slice(3,6),
+    3: d.slice(6,9)
+  };
+}
+
+
+
+
+function groupPerorangan(data){
+  return {
+    1: data.filter(r=>r.juara==1).slice(0,1),
+    2: data.filter(r=>r.juara==2).slice(0,1),
+    3: data.filter(r=>r.juara==3).slice(0,1)
+  };
+}
+
+
+
+
+function render(el,data){
+  el.innerHTML="";
+  data.forEach(r=>{
+    el.innerHTML+=`
+    <div class="card">
+      <div class="rank">${r.medali||""}</div>
+      <div>
+        <div class="nama">${r.nama}</div>
+        <div class="klub">${r.klub}</div>
+      </div>
+      <div class="skor">${r.skor}</div>
+    </div>`;
+  });
+}
+
+
+function renderGroup(el, data, tipe="angka", isDPBeregu=false){
+  el.innerHTML = `
+    <div class="group-title">🥇 JUARA 1</div>
+    ${renderRows(data[1], tipe)}
+    <div class="group-total">
+      Total:
+      ${
+        isDPBeregu
+        ? '<span id="dpTotal1"></span>'
+        : `<span>${sumSkor(data[1], tipe)}</span>`
+      }
+    </div>
+
+    <div class="group-title">🥈 JUARA 2</div>
+    ${renderRows(data[2], tipe)}
+    <div class="group-total">
+      Total:
+      ${
+        isDPBeregu
+        ? '<span id="dpTotal2"></span>'
+        : `<span>${sumSkor(data[2], tipe)}</span>`
+      }
+    </div>
+
+    <div class="group-title">🥉 JUARA 3</div>
+    ${renderRows(data[3], tipe)}
+    <div class="group-total">
+      Total:
+      ${
+        isDPBeregu
+        ? '<span id="dpTotal3"></span>'
+        : `<span>${sumSkor(data[3], tipe)}</span>`
+      }
+    </div>
+  `;
+}
+
+
+
+function loadDPBereguTotal(){
+  google.script.run.withSuccessHandler(res=>{
+    if(!Array.isArray(res)) return;
+
+    const [j1, j2, j3] = res;
+
+    if(document.getElementById("dpTotal1"))
+      document.getElementById("dpTotal1").innerText = j1 || "-";
+
+    if(document.getElementById("dpTotal2"))
+      document.getElementById("dpTotal2").innerText = j2 || "-";
+
+    if(document.getElementById("dpTotal3"))
+      document.getElementById("dpTotal3").innerText = j3 || "-";
+  }).getTotalDPBereguKhusus();
+}
+
+
+
+function formatTime(seconds){
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2,'0')}`;
+}
+
+
+
+
+
+function secToMMSS(sec){
+  sec = Math.round(sec);
+  const mm = Math.floor(sec/60);
+  const ss = sec % 60;
+  return `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+
+function formatSheetTime(val){
+  if(val == null || val === "") return "";
+
+  
+  if(String(val).includes(":")) return val;
+
+  let num = Number(val);
+  if(isNaN(num)) return val;
+
+  
+  if(num > 0 && num < 1){
+    return secToMMSS(Math.round(num * 86400));
+  }
+
+  
+  if(num >= 1){
+    return secToMMSS(num);
+  }
+
+  return val;
+}
+
+function parseScore(val, tipe){
+  if(tipe === "waktu"){
+    
+    if(String(val).includes(":")){
+      const [m,s] = val.split(":").map(Number);
+      return (m*60 + s);
+    }
+  }
+  return Number(val);
+}
+
+function renderRows(arr, tipe="angka"){
+  
+  arr = arr.slice().sort((a,b)=>{
+    const sa = parseScore(a.skor, tipe);
+    const sb = parseScore(b.skor, tipe);
+    return sa - sb; 
+  });
+
+  
+  return arr.map(r=>{
+    let skorDisplay = r.skor ?? "";
+
+    if(tipe === "waktu"){
+      skorDisplay = formatSheetTime(skorDisplay);
+    }
+
+    return `
+      <div class="card">
+        <div class="nama">${r.nama||""}</div>
+        <div class="klub">${r.klub||""}</div>
+        <div class="skor">${skorDisplay}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+
+function sumSkor(arr, tipe="angka"){
+  if(!arr || arr.length===0) return tipe === "waktu" ? "0:00" : 0;
+
+  if(tipe === "waktu"){
+    
+    const totalDetik = arr.reduce((total, r)=>{
+      const skor = r.skor ?? 0;
+      if(typeof skor === "string" && skor.includes(":")){
+        const parts = skor.split(":").map(Number);
+        return total + (parts[0]*60 + parts[1]);
+      } else {
+        return total + Number(skor);
+      }
+    }, 0);
+    return formatTime(totalDetik);
+  } else {
+  
+    return arr.reduce((total, r)=> total + (Number(r.skor)||0), 0);
+  }
+}
+
+
+function renderTableUniversal(el, payload, title){
+  const data = payload.data;
+  const header = payload.header;
+
+  if(!data || data.length === 0){
+    el.innerHTML = `
+      <h2 style="text-align:center">${title}</h2>
+      <p style="text-align:center">Tidak ada data</p>
+      <div style="text-align:center">
+        <button onclick="showAll()">⬅ Kembali</button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+  <div class="fullscreen">
+    <h2 style="text-align:center;margin-bottom:15px">${title}</h2>
+    <div class="table-wrap">
+      <table class="std-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            ${header.map(h => `<th>${h || ""}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  data.forEach((row,i)=>{
+    html += `<tr>
+      <td><b>${i+1}</b></td>
+      ${row.map(cell=>`<td>${cell || ""}</td>`).join("")}
+    </tr>`;
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+    <div style="text-align:center;margin-top:15px">
+      <button onclick="showAll()" style="padding:10px 20px;border-radius:10px;border:none;background:#1e293b;color:white">
+        ⬅ Kembali
+      </button>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+
+
+
+
+function loadAll(){
+  Object.keys(sheets).forEach((id, idx)=>{
+    setTimeout(()=>{
+      google.script.run.withSuccessHandler(d=>{
+
+        if (Array.isArray(d) && d.length === 9){
+
+          
+          if(id === "cat5"){
+
+          
+            if(!dpBereguRendered){
+              renderGroup(
+                document.getElementById(id),
+                groupBeregu(d),
+                materiConfig[id].tipe,
+                true
+              );
+              dpBereguRendered = true; // ⬅️ TANDA SUDAH DIRENDER
+            }
+
+            
+            loadDPBereguTotal();
+          }
+
+          
+          else{
+            renderGroup(
+              document.getElementById(id),
+              groupBeregu(d),
+              materiConfig[id].tipe
+            );
+          }
+
+        } else {
+          render(document.getElementById(id), d);
+        }
+
+      }).getTopAuto(sheets[id]);
+    }, idx*200);
+  });
+}
+
+
+
+
+
+
+function showOnly(id){
+  document.body.classList.add("mode-fullscreen");
+  document.getElementById("gridView").style.display="none";
+  document.getElementById("singleView").style.display="block";
+
+  const cfg = materiConfig[id];
+
+  google.script.run.withSuccessHandler(data=>{
+    renderTableUniversal(
+      document.getElementById("singleContent"),
+      data,
+      cfg.title
+    );
+  }).getTableCustom(cfg.sheet, cfg.columns); 
+}
+
+
+function showAll(){
+  document.body.classList.remove("mode-fullscreen");
+  document.getElementById("gridView").style.display="block";
+  document.getElementById("singleView").style.display="none";
+  document.getElementById("singleContent").innerHTML="";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  loadAll();
+  setInterval(loadAll, 5000);
+});
+
+function updateDateTime(){
+  const now = new Date();
+
+  const jam = now.toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
+  const hari = now.toLocaleDateString('id-ID', {
+    weekday: 'long'
+  });
+
+  const tanggal = now.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  document.getElementById("jam").innerText = jam;
+  document.getElementById("tanggal").innerText = `${hari}, ${tanggal}`;
+}
+
+updateDateTime();
+setInterval(updateDateTime,1000);
+
+
+
+function renderRunningText(arr){
+  const el = document.querySelector(".running-text");
+  if(!el) return;
+
+  const list = arr.map(item => {
+    return item.logo
+      ? `<img src="${item.logo}" class="rt-logo"> ${item.text}`
+      : item.text;
+  }).join(" &nbsp; • &nbsp; ");
+
+  el.innerHTML = list;
+}
+
+
+
+
+
+function loadTable(){
+  const materi = document.getElementById('materiSelect').value;
+
+  google.script.run
+    .withSuccessHandler(renderTable)
+    .apiGetTable(materi);
+}
+
+function renderTable(res){
+  if (!res || res.data.length === 0){
+    document.getElementById('tableBox').innerHTML = "<b>Data KOSONG</b>";
+    return;
+  }
+
+  let html = "<table><thead><tr>";
+  res.header.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr></thead><tbody>";
+
+  res.data.forEach(r=>{
+    html += "<tr>";
+    r.forEach(c=> html += `<td>${c}</td>`);
+    html += "</tr>";
+  });
+
+  html += "</tbody></table>";
+
+  document.getElementById('tableBox').innerHTML = html;
+}
+
+
+
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>
